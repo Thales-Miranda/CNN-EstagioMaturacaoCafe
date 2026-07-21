@@ -240,4 +240,3 @@ A CNN melhorou o F1-macro em aproximadamente **43%** em relação à MLP.
 
 ---
 
-*Projeto desenvolvido para a disciplina de Inteligência Artificial • 2025*
