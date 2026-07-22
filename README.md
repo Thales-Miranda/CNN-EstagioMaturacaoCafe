@@ -22,15 +22,12 @@ O problema consiste em predizer o estágio de maturação a partir de fotos capt
 
 O dataset contém cinco estágios de maturação dos frutos de café:
 
-| Índice | Classe | Descrição |
-|--------|------------|--------------------------------------------------|
-| 0 | Cereja | Fruto maduro, coloração vermelha intensa |
-| 1 | Passa | Fruto em processo de secagem na planta |
-| 2 | Seco | Fruto completamente seco na planta |
-| 3 | Verde | Fruto imaturo, coloração verde |
-| 4 | Verde cana | Fruto em transição, início de amadurecimento |
-
----
+Índice	Classe
+0	Verde
+1	Verde cana
+2	Cereja
+3	Passa
+4	Seco
 
 ## 3. Estrutura do Projeto
 
