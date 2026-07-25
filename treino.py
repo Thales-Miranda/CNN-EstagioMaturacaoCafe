@@ -48,21 +48,7 @@ from sklearn.metrics import (
 
 
 def treinar_uma_epoca(modelo, loader, criterio, otimizador, dispositivo):
-    """
-    Treina o modelo por uma época completa.
-
-    Parâmetros:
-        modelo      : a rede neural (MLP)
-        loader      : DataLoader de treino
-        criterio    : função de perda (CrossEntropyLoss)
-        otimizador  : algoritmo de atualização dos pesos (Adam)
-        dispositivo : 'cpu' ou 'cuda' (GPU)
-
-    Retorna:
-        perda_media : média da perda em todas as imagens
-        acuracia    : proporção de acertos (0.0 a 1.0)
-    """
-
+ 
     # Coloca o modelo em modo de treino
     # Isso ativa o Dropout e o BatchNorm no modo correto
     modelo.train()

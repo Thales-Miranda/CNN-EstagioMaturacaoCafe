@@ -150,11 +150,6 @@ class CNN(nn.Module):
         return x
     
 
-
-
-
-
-
 # Função auxiliar para criar a CNN facilmente
 
 
