@@ -1,35 +1,35 @@
+# Classificação de Maturação de Frutos de Café
 
-
-# Predição de Maturação de Frutos de Café
-
-> Classificação por Imagens com Redes Neurais (MLP e CNN)  
-> Disciplina: Inteligência Artificial • 2025
-
----
-
-## 1. Descrição do Projeto
-
-Este projeto implementa um sistema de classificação automática de imagens de frutos de café em cinco estágios de maturação, utilizando redes neurais desenvolvidas em Python com PyTorch.
-
-O problema consiste em predizer o estágio de maturação a partir de fotos capturadas pelo agricultor. Para isso, foram implementadas duas arquiteturas:
-
-- **MLP (Multilayer Perceptron)** — modelo baseline obrigatório
-- **CNN (Rede Neural Convolucional)** — modelo avançado para melhoria do desempenho
+> Universidade Federal de Uberlândia — UFU  
+> Disciplina: Mineração de Dados — FACOM  
+> Prof. Murillo Guimarães Carneiro  
+> Aluno: Thales Elias Miranda — 12221GIN016
 
 ---
 
-## 2. Classes de Maturação
+## Sobre o Projeto
 
-O dataset contém cinco estágios de maturação dos frutos de café:
+A ideia deste projeto nasceu de um problema real da cafeicultura brasileira: como saber o momento certo de colher os frutos? Hoje, essa decisão depende da experiência visual do agricultor — um processo subjetivo, lento e que pode levar a perdas significativas de qualidade e valor.
 
-Índice	Classe
-0	Verde
-1	Verde cana
-2	Cereja
-3	Passa
-4	Seco
+A proposta foi desenvolver um sistema capaz de classificar automaticamente o estágio de maturação de frutos de café a partir de fotos tiradas pelo próprio agricultor, usando redes neurais treinadas em Python com PyTorch.
 
-## 3. Estrutura do Projeto
+O projeto foi construído de forma gradual, evoluindo de uma arquitetura simples (MLP) até uma abordagem moderna com Transfer Learning (EfficientNet), passando por uma CNN desenvolvida do zero.
+
+---
+
+## As 5 Classes de Maturação
+
+| Índice | Classe | Descrição |
+|--------|------------|--------------------------------------------------|
+| 0 | Verde | Fruto imaturo, coloração verde |
+| 1 | Verde cana | Fruto em transição, início de amadurecimento |
+| 2 | Cereja | Fruto maduro, coloração vermelha intensa |
+| 3 | Passa | Fruto em processo de secagem na planta |
+| 4 | Seco | Fruto completamente seco na planta |
+
+---
+
+## Estrutura do Projeto
 
 ```
 Mineração Café/
@@ -41,199 +41,231 @@ Mineração Café/
 │   │   ├── Verde/
 │   │   └── Verde cana/
 │   └── test/
-│       └── *.jpg   (15 imagens sem rótulo)
+│       └── *.jpg        (15 imagens sem rótulo — submissão Kaggle)
 ├── resultados/
 │   ├── mlp_melhor_modelo.pth
 │   ├── cnn_melhor_modelo.pth
+│   ├── efficientnet_melhor_modelo.pth
 │   ├── mlp_metricas.json
 │   ├── cnn_metricas.json
+│   ├── efficientnet_metricas.json
 │   └── submissao.csv
 ├── dados.py
 ├── mlp.py
 ├── cnn.py
+├── efficientnet.py
 ├── treino.py
 ├── treino_mlp.py
 ├── treino_cnn.py
+├── treino_efficientnet.py
 ├── submissao.py
 └── README.md
 ```
 
 ---
 
-## 4. Descrição dos Arquivos
+## O que cada arquivo faz
 
-| Arquivo | Função |
-|---------------|--------------------------------------------------------------|
-| `dados.py` | Carregamento, pré-processamento e Data Augmentation |
-| `mlp.py` | Definição da arquitetura da Rede Neural MLP (baseline) |
-| `cnn.py` | Definição da arquitetura da Rede Neural CNN (avançado) |
-| `treino.py` | Loop de treinamento, early stopping e métricas |
-| `treino_mlp.py` | Script principal para treinar a MLP |
-| `treino_cnn.py` | Script principal para treinar a CNN |
-| `submissao.py` | Gera o CSV de predições para submissão no Kaggle |
+| Arquivo | Responsabilidade |
+|---|---|
+| `dados.py` | Lê as imagens do disco, aplica Data Augmentation e entrega os dados em batches para a rede |
+| `mlp.py` | Define a arquitetura da MLP — rede baseline que trata a imagem como vetor de pixels |
+| `cnn.py` | Define a CNN com 4 blocos convolucionais — detecta padrões visuais como bordas e texturas |
+| `efficientnet.py` | Carrega a EfficientNet-B0 pré-treinada e adapta para as 5 classes de café |
+| `treino.py` | Motor de treinamento compartilhado entre todos os modelos — inclui Early Stopping e métricas |
+| `treino_mlp.py` | Script para treinar a MLP |
+| `treino_cnn.py` | Script para treinar a CNN |
+| `treino_efficientnet.py` | Script para treinar a EfficientNet com Transfer Learning em 2 estágios |
+| `submissao.py` | Gera o CSV de predições para submissão no Kaggle (usa EfficientNet por padrão) |
 
 ---
 
-## 5. Instalação e Configuração
+## Instalação
 
-### Requisitos do Sistema
+### Requisitos
 
 - Python 3.10 ou superior
-- Sistema operacional: Windows, Linux (Fedora 30–36) ou macOS
+- Windows, Linux (Fedora 30–36) ou macOS
 - Mínimo 4 GB de RAM
-- GPU NVIDIA (opcional, mas recomendado para treino mais rápido)
+- GPU NVIDIA (opcional — acelera bastante o treino)
 
-### Instalação das Dependências
-
-Abra o terminal na pasta do projeto e execute:
+### Passo a passo
 
 ```bash
-# Criar ambiente virtual (recomendado)
+# 1. Criar ambiente virtual
 python -m venv venv
 
-# Ativar o ambiente virtual
+# 2. Ativar o ambiente
 # Windows:
 venv\Scripts\activate
-
 # Linux / macOS:
 source venv/bin/activate
 
-# Instalar as bibliotecas necessárias
+# 3. Instalar as dependências
 pip install torch torchvision scikit-learn pillow
 ```
 
 ---
 
-## 6. Como Executar
+## Como Executar
 
-### 6.1 Treinar a MLP (baseline obrigatório)
+### 1. Treinar a MLP (baseline obrigatório)
 
 ```bash
 python treino_mlp.py
 ```
 
-Parâmetros opcionais:
-
-```bash
-python treino_mlp.py --pasta_dados ./data --epocas 200 --batch_size 7
-```
-
-### 6.2 Treinar a CNN (modelo avançado)
+### 2. Treinar a CNN
 
 ```bash
 python treino_cnn.py
 ```
 
-Parâmetros opcionais:
+### 3. Treinar a EfficientNet (Transfer Learning)
 
 ```bash
-python treino_cnn.py --pasta_dados ./data --epocas 200 --batch_size 7
+python treino_efficientnet.py
 ```
 
-### 6.3 Gerar o CSV de Submissão
-
-Após treinar os modelos, gere as predições para o conjunto de teste:
+### 4. Gerar o CSV de submissão
 
 ```bash
-# Usando a CNN (recomendado — melhor desempenho)
+# EfficientNet — melhor resultado (padrão)
 python submissao.py
 
-# Usando a MLP
+# CNN
+python submissao.py --modelo cnn
+
+# MLP
 python submissao.py --modelo mlp
 ```
 
-O arquivo `submissao.csv` será salvo em `resultados/`.
+O arquivo `resultados/submissao.csv` estará pronto para enviar no Kaggle.
 
 ---
 
-## 7. Arquiteturas Implementadas
+## As Arquiteturas
 
-### 7.1 MLP — Multilayer Perceptron (Baseline)
+### MLP — O Ponto de Partida
 
-A MLP recebe a imagem achatada como vetor de pixels e passa por camadas densas para classificar nas 5 classes.
+A MLP foi o primeiro modelo implementado, como exigido pelo projeto. Ela achata a imagem inteira em um vetor de pixels e passa por camadas de neurônios conectados. É simples e serve bem como referência, mas tem uma limitação fundamental: ao achatar a imagem, ela perde toda a informação espacial — não sabe que pixels vizinhos formam padrões, bordas ou cores.
 
-| Parâmetro | Valor |
-|----------------------|----------------------------------------------|
-| Tamanho de entrada | 3 × 64 × 64 = 12.288 pixels |
+| Detalhe | Valor |
+|---|---|
+| Entrada | 3 × 64 × 64 = 12.288 pixels |
 | Camadas ocultas | 512 → 256 → 128 neurônios |
-| Ativação | ReLU + BatchNorm + Dropout(0.5) |
-| Parâmetros treináveis| 6.458.629 |
+| Regularização | BatchNorm + ReLU + Dropout(0.5) |
+| Parâmetros | 6.458.629 |
 | Otimizador | Adam (lr=0.001, weight_decay=0.001) |
-| Scheduler | ReduceLROnPlateau (patience=10, factor=0.5) |
+| Scheduler | ReduceLROnPlateau |
 | Early Stopping | Paciência de 30 épocas |
 
-### 7.2 CNN — Rede Neural Convolucional (Modelo Avançado)
+---
 
-A CNN preserva a estrutura espacial da imagem e detecta padrões visuais como bordas, texturas e cores dos frutos através de 4 blocos convolucionais.
+### CNN — Aprendendo a Enxergar
 
-| Parâmetro | Valor |
-|----------------------|----------------------------------------------|
-| Tamanho de entrada | 3 × 128 × 128 pixels |
-| Blocos convolucionais| 4 blocos (32 → 64 → 128 → 256 filtros) |
+A CNN foi o segundo modelo, desenvolvida do zero com 4 blocos convolucionais. Diferente da MLP, ela preserva a estrutura espacial da imagem e aplica filtros que deslizam sobre ela detectando bordas, texturas e cores. Cada bloco aprende padrões progressivamente mais complexos — do contorno do fruto até sua cor e textura superficial.
+
+| Detalhe | Valor |
+|---|---|
+| Entrada | 3 × 128 × 128 pixels |
+| Blocos convolucionais | 4 blocos: 32 → 64 → 128 → 256 filtros |
 | Cada bloco | Conv2d → BatchNorm → ReLU → Conv2d → BatchNorm → ReLU → MaxPool |
 | Classificador | 4096 → 512 → 128 → 5 classes |
-| Parâmetros treináveis| 3.339.429 |
+| Parâmetros | 3.339.429 |
 | Otimizador | Adam (lr=0.001, weight_decay=0.0001) |
-| Scheduler | ReduceLROnPlateau (patience=10, factor=0.5) |
 | Early Stopping | Paciência de 30 épocas |
 
 ---
 
-## 8. Pré-processamento e Data Augmentation
+### EfficientNet — Transfer Learning
 
-Com apenas 35 imagens de treino, o Data Augmentation é essencial para evitar overfitting:
+O terceiro e melhor modelo. Em vez de treinar do zero, aproveitamos a EfficientNet-B0 já treinada em 1,2 milhão de imagens do ImageNet. Ela já sabe reconhecer bordas, texturas, formas e cores — só precisou aprender a aplicar esse conhecimento para distinguir os frutos de café.
 
-| Transformação | Descrição |
-|----------------------|------------------------------------------------------|
-| Resize | Redimensiona para tamanho + 20 pixels |
-| RandomCrop | Recorte aleatório para o tamanho final |
-| RandomHorizontalFlip | Espelhamento horizontal com 50% de chance |
-| RandomVerticalFlip | Espelhamento vertical com 50% de chance |
-| RandomRotation(30°) | Rotação aleatória entre -30° e +30° |
-| ColorJitter | Variação de brilho, contraste, saturação e matiz |
-| Normalize (ImageNet) | Normalização com média e desvio padrão do ImageNet |
+O treinamento foi feito em 2 estágios:
 
----
+**Estágio 1 — Backbone congelado (10 épocas)**
+O backbone fica congelado para não destruir o conhecimento pré-treinado. Apenas o classificador final é treinado com LR alto (0.001).
 
-## 9. Resultados Obtidos
+**Estágio 2 — Fine-tuning completo (40 épocas)**
+Toda a rede é descongelada e treinada com LR baixo (0.0001) para especializar o conhecimento no domínio de café.
 
-Avaliação realizada no conjunto de validação (7 imagens — 20% do treino):
-
-| Modelo | Precisão (macro) | Recall (macro) | F1-macro |
-|----------------|------------------|----------------|----------|
-| MLP (baseline) | 0.2000 | 0.4000 | 0.2667 |
-| CNN (avançado) | 0.3333 | 0.5000 | **0.3800** |
-
-A CNN melhorou o F1-macro em aproximadamente **43%** em relação à MLP.
+| Detalhe | Valor |
+|---|---|
+| Base | EfficientNet-B0 (ImageNet) |
+| Entrada | 3 × 224 × 224 pixels |
+| Classificador | 1280 → 5 classes |
+| Dropout | 0.3 |
+| LR Estágio 1 | 0.001 |
+| LR Estágio 2 | 0.0001 |
+| Scheduler E2 | CosineAnnealingLR |
 
 ---
 
-## 10. Métricas de Avaliação
+## Pré-processamento e Data Augmentation
 
-- **Precisão (macro):** média da precisão por classe — "de tudo que predi como Cereja, quantos eram Cereja de fato?"
-- **Recall (macro):** média do recall por classe — "de todas as Cerejas reais, quantas identifiquei corretamente?"
-- **F1-macro:** média harmônica entre Precisão e Recall — **métrica principal da avaliação**
+Com apenas 35 imagens de treino, o Data Augmentation foi essencial para evitar que os modelos simplesmente decorassem os exemplos. A cada época, cada imagem é transformada de forma diferente:
 
----
-
-## 11. Dependências
-
-| Biblioteca | Versão mínima | Uso |
-|------------|---------------|----------------------------------|
-| torch | 2.0.0 | Framework de redes neurais |
-| torchvision | 0.15.0 | Datasets e transformações |
-| scikit-learn | 1.3.0 | Cálculo de métricas |
-| Pillow | 10.0.0 | Leitura de imagens |
+| Transformação | O que simula |
+|---|---|
+| Resize + RandomCrop | Diferentes enquadramentos da foto |
+| RandomHorizontalFlip | Planta fotografada de lados diferentes |
+| RandomVerticalFlip | Ângulos variados de captura |
+| RandomRotation(30°) | Agricultor girando o celular |
+| ColorJitter | Variações de luz, sombra e exposição |
+| Normalize (ImageNet) | Padronização dos valores para o treino |
 
 ---
 
-## 12. Observações Importantes
+## Resultados
 
-- O conjunto de teste (`data/test/`) **NÃO deve ser usado** durante o treinamento — apenas para gerar a submissão final.
-- O conjunto de validação é criado automaticamente a partir de **20% do conjunto de treino**.
-- Os pesos do melhor modelo são salvos automaticamente em `resultados/` durante o treino.
-- O **Early Stopping** interrompe o treino automaticamente se não houver melhora por 30 épocas consecutivas.
-- O dataset **não deve ser compartilhado** com terceiros nem disponibilizado publicamente.
+Avaliação no conjunto de validação (7 imagens — 20% do treino):
+
+| Modelo | Precisão | Recall | F1-macro | Melhora |
+|---|---|---|---|---|
+| MLP (baseline) | 0.20 | 0.40 | 0.27 | — |
+| CNN (do zero) | 0.63 | 0.70 | 0.63 | +133% |
+| EfficientNet (Transfer Learning) | 0.93 | 0.90 | **0.89** | **+230%** |
+
+### Detalhamento por classe — EfficientNet
+
+| Classe | Precisão | Recall | F1 |
+|---|---|---|---|
+| Verde | 1.00 | 1.00 | 1.00 |
+| Verde cana | 1.00 | 1.00 | 1.00 |
+| Cereja | 1.00 | 1.00 | 1.00 |
+| Passa | 0.67 | 1.00 | 0.80 |
+| Seco | 1.00 | 0.50 | 0.67 |
 
 ---
 
+## Métricas de Avaliação
+
+- **Precisão (macro):** de tudo que o modelo classificou como Cereja, quantos eram realmente Cereja?
+- **Recall (macro):** de todas as Cerejas reais, quantas o modelo identificou corretamente?
+- **F1-macro:** média harmônica entre Precisão e Recall para cada classe — a métrica principal, pois trata todas as classes com o mesmo peso independente da quantidade de exemplos.
+
+---
+
+## Dependências
+
+| Biblioteca | Versão mínima | Para que serve |
+|---|---|---|
+| torch | 2.0.0 | Framework principal de redes neurais |
+| torchvision | 0.15.0 | Datasets, transformações e modelos pré-treinados |
+| scikit-learn | 1.3.0 | Cálculo de F1-macro, Precisão e Recall |
+| Pillow | 10.0.0 | Leitura e manipulação das imagens |
+
+---
+
+## Observações
+
+- O conjunto de teste (`data/test/`) **nunca foi usado** durante o treinamento — apenas para gerar a submissão final no Kaggle.
+- A validação é criada automaticamente a partir de **20% do treino** — nunca o conjunto de teste.
+- O Early Stopping salva automaticamente o melhor modelo durante o treino e para quando não há mais melhora.
+- O dataset não deve ser compartilhado com terceiros nem disponibilizado publicamente.
+
+---
+
+*Projeto desenvolvido individualmente — Mineração de Dados, UFU, 2025*
+s

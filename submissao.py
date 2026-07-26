@@ -4,6 +4,9 @@
 # Usa o melhor modelo treinado (EfficientNet por padrão) para gerar as
 # predições das 15 imagens do conjunto de teste (sem rótulos).
 #
+# A coluna 'class' é enviada como NÚMERO conforme o mapeamento:
+#     Verde=0, Verde cana=1, Cereja=2, Passa=3, Seco=4
+#
 # Como usar:
 #     python submissao.py                    ← usa EfficientNet (recomendado)
 #     python submissao.py --modelo cnn       ← usa a CNN
@@ -22,7 +25,7 @@ import torch
 from mlp import criar_mlp
 from cnn import criar_cnn
 from efficientnet import criar_efficientnet
-from dados import CLASSES, DatasetTeste, transformacao_avaliacao
+from dados import CLASSES, CLASSE_PARA_IDX, DatasetTeste, transformacao_avaliacao
 from torch.utils.data import DataLoader
 
 
@@ -60,12 +63,16 @@ def gerar_submissao(modelo_escolhido, pasta_teste, pasta_resultados):
     print(f"Dispositivo    : {dispositivo}")
     print(f"Modelo         : {modelo_escolhido.upper()}")
 
+    # Exibe o mapeamento para conferência
+    print("\nMapeamento de classes:")
+    for nome, idx in CLASSE_PARA_IDX.items():
+        print(f"  {idx} = {nome}")
+
     # ── 1. Carrega o modelo e os pesos ───────────────────────────────────────
     print("\n[1/3] Carregando o modelo treinado...")
 
     if modelo_escolhido == "efficientnet":
         # EfficientNet — melhor desempenho (F1-macro = 0.89)
-        # Usa imagens 224×224 — resolução original do modelo pré-treinado
         modelo = criar_efficientnet(
             num_classes=len(CLASSES),
             dropout=0.3,
@@ -75,7 +82,6 @@ def gerar_submissao(modelo_escolhido, pasta_teste, pasta_resultados):
 
     elif modelo_escolhido == "cnn":
         # CNN — segundo melhor (F1-macro = 0.63)
-        # Usa imagens 128×128
         modelo = criar_cnn(
             num_classes=len(CLASSES),
             dropout=0.5,
@@ -85,7 +91,6 @@ def gerar_submissao(modelo_escolhido, pasta_teste, pasta_resultados):
 
     else:
         # MLP — baseline (F1-macro = 0.27)
-        # Usa imagens 64×64 achatadas em vetor
         modelo = criar_mlp(
             tamanho_imagem=64,
             neuronios_ocultos=[512, 256, 128],
@@ -113,7 +118,6 @@ def gerar_submissao(modelo_escolhido, pasta_teste, pasta_resultados):
         transformacao=transformacao_avaliacao(tamanho_imagem)
     )
 
-    # batch_size=1 para garantir a ordem correta dos IDs
     loader_teste = DataLoader(dataset_teste, batch_size=1, shuffle=False)
     print(f"  {len(dataset_teste)} imagens encontradas")
 
@@ -129,15 +133,16 @@ def gerar_submissao(modelo_escolhido, pasta_teste, pasta_resultados):
             # Passa pela rede e obtém as pontuações para cada classe
             saidas = modelo(imagem)
 
-            # Pega o índice da maior pontuação = classe predita
+            # Índice da classe predita (já está na nossa ordem correta)
+            # Verde=0, Verde cana=1, Cereja=2, Passa=3, Seco=4
             indice_predito = saidas.argmax(1).item()
 
-            # Converte o índice para o nome da classe
-            classe_predita = CLASSES[indice_predito]
+            # Nome da classe para exibição no terminal
+            nome_classe = CLASSES[indice_predito]
 
             id_str = id_imagem[0]
-            predicoes.append((id_str, classe_predita))
-            print(f"  Imagem {id_str:>4} → {classe_predita}")
+            predicoes.append((id_str, indice_predito))
+            print(f"  Imagem {id_str:>4} → {indice_predito} ({nome_classe})")
 
     # ── 4. Salva o CSV ────────────────────────────────────────────────────────
     Path(pasta_resultados).mkdir(parents=True, exist_ok=True)
@@ -149,9 +154,9 @@ def gerar_submissao(modelo_escolhido, pasta_teste, pasta_resultados):
         # Cabeçalho no formato do Kaggle
         escritor.writerow(["id", "class"])
 
-        # ID como inteiro, classe como texto
-        for id_img, classe in predicoes:
-            escritor.writerow([int(id_img), classe])
+        # ID como inteiro, classe como NÚMERO inteiro
+        for id_img, classe_num in predicoes:
+            escritor.writerow([int(id_img), int(classe_num)])
 
     print(f"\n{'='*45}")
     print("SUBMISSÃO GERADA COM SUCESSO!")
@@ -160,7 +165,7 @@ def gerar_submissao(modelo_escolhido, pasta_teste, pasta_resultados):
     print(f"  Arquivo  : {caminho_csv}")
     print(f"  Total    : {len(predicoes)} imagens")
     print(f"{'='*45}")
-    
+    print("\nEnvie o arquivo 'submissao.csv' no Kaggle!")
 
 
 if __name__ == "__main__":
