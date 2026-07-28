@@ -165,7 +165,6 @@ def gerar_submissao(modelo_escolhido, pasta_teste, pasta_resultados):
     print(f"  Arquivo  : {caminho_csv}")
     print(f"  Total    : {len(predicoes)} imagens")
     print(f"{'='*45}")
-    print("\nEnvie o arquivo 'submissao.csv' no Kaggle!")
 
 
 if __name__ == "__main__":
